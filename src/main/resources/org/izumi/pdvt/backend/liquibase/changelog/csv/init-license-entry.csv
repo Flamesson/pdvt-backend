@@ -1,0 +1,21 @@
+id,artifact,problematic,license_name
+63f50bcb-8470-419f-8fb8-7e0cb693b4c7,junit:junit:+,false,EPL 1.0
+7df9b92b-9d24-46c2-ba72-72ea2aa85c58,org.slf4j:slf4j-api:+,false,MIT
+eb53fde9-0c08-4175-b1c0-1a7a9773e05f,ch.qos.logback:logback-classic:+,true,EPL 1.0;LGPL 2.1
+0ebe3c3a-1f43-4c7e-80d7-05567d32e7e9,javax.servlet:javax.servlet-api:+,true,CDDL;GPL 2.0
+52f1bccc-927b-4698-90f6-64d67195b019,javax.servlet:servlet-api:+,true,CDDL;GPL;GPL 2.0
+defeeab4-12f5-4ca7-ae8a-4aa47006a394,ch.qos.logback:logback-core:+,true,EPL 1.0;LGPL 2.1
+34bcdc3f-cca2-4156-933e-2257fac61675,org.hibernate:hibernate-core:+,true,LGPL 2.1
+48dd2f83-be4c-4640-8945-db0addabb0a1,org.javassist:javassist:+,true,Apache 2.0;LGPL 2.1;MPL 1.1
+5698514c-5936-4ee6-beed-1bab86991c49,javax.ws.rs:javax.ws.rs-api:+,true,GPL;EPL 2.0
+0e35d439-46bc-4863-8d16-3b412c10e51b,org.hibernate:hibernate-entitymanager:+,true,LGPL 2.1
+5cceef33-487c-42ac-8f21-967ec76ba59c,javax.mail:mail:+,true,GPL 2.0;CDDL
+2bc81674-98e1-4285-9d0d-f291caf978bf,org.renjin.cran:knitr:+,true,GPL
+31f1917a-ad9c-483e-b448-7ceef52efe31,jakarta.servlet:jakarta.servlet-api:+,true,EPL 2.0;GPL
+4c71ec01-9e70-4e0f-a917-b6030a47d628,net.databinder.dispatch:dispatch-core_+:+,true,LGPL 3.0
+ee23e61a-3ee7-43bf-8a81-af654ea9c077,com.sun.jersey.contribs:jersey-apache-client:+,true,CDDL 1.1;GPL 1.1
+1ac13e15-690b-4e4a-beed-eeb757d2ca88,co.paralleluniverse:comsat-httpclient:+,true,EPL 1.0;LGPL 3.0
+8bf306df-e0df-4a98-b883-fe622bd4e572,org.bluestemsoftware.open.eoa.ext:commons-http-client:+,true,GPL
+abdc4e46-7941-4235-addd-26bf12d8f16c,org.littleshoot:http-client:+,true,GPL 2.0
+2731d4d6-347f-4608-9233-dc011d80a887,javax.annotation:javax.annotation-api:+,true,CDDL;GPL 2.0
+94e1d790-91b1-47d6-96bc-7f54bf252b65,javax:javaee-api:+,true,CDDL;GPL 2.0
