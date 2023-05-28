@@ -12,11 +12,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/ws/pdvt", "/user");
+        config.enableSimpleBroker("/ws/pdvt", "/ws/file-and-analyze", "/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/pdvt").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws/file-and-analyze").setAllowedOriginPatterns("*").withSockJS();
     }
 }
