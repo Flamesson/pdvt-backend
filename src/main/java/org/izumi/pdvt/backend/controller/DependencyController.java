@@ -27,7 +27,7 @@ public class DependencyController extends AbstractController {
     @PostMapping("/licenses/check")
     public ResponseEntity<Collection<DependencyDto>> checkLicenses(@RequestBody Collection<DependencyDto> dtos) {
         return authenticator.withSystem(() -> {
-            final Iterable<LicenseEntry> entries = licenseEntryRepository.findAll();
+            final Iterable<LicenseEntry> entries = licenseEntryRepository.findAllByProblematic(true);
             return ok(findProblematics(entries, dtos));
         });
     }
