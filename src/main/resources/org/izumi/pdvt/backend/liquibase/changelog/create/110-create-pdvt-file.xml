@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Aiden Izumi">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="PDVT_FILE"/></not>
+        </preConditions>
+
+        <createTable tableName="PDVT_FILE">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PDVT_FILE"/>
+            </column>
+
+            <column name="CLIENT_ID" type="UUID"/>
+            <column name="FILE_ID" type="UUID"/>
+
+            <column name="VERSION" type="NUMBER"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="DATETIME"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Aiden Izumi">
+        <preConditions onFail="MARK_RAN">
+            <not><foreignKeyConstraintExists foreignKeyName="FK_PDVT_FILE_ON_CLIENT_ID"/></not>
+        </preConditions>
+
+        <addForeignKeyConstraint baseTableName="PDVT_FILE" baseColumnNames="CLIENT_ID"
+                                 constraintName="FK_PDVT_FILE_ON_CLIENT_ID"
+                                 referencedTableName="CLIENT" referencedColumnNames="ID"/>
+    </changeSet>
+
+    <changeSet id="3" author="Aiden Izumi">
+        <preConditions onFail="MARK_RAN">
+            <not><foreignKeyConstraintExists foreignKeyName="FK_PDVT_FILE_ON_FILE_ID"/></not>
+        </preConditions>
+
+        <addForeignKeyConstraint baseTableName="PDVT_FILE" baseColumnNames="FILE_ID"
+                                 constraintName="FK_PDVT_FILE_ON_FILE_ID"
+                                 referencedTableName="STORED_FILE" referencedColumnNames="ID"/>
+    </changeSet>
+
+</databaseChangeLog>

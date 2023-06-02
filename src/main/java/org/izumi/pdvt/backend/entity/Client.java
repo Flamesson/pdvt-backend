@@ -1,30 +1,28 @@
 package org.izumi.pdvt.backend.entity;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.UUID;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import io.jmix.core.FileStorage;
 import io.jmix.core.FileStorageLocator;
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.JmixEntity;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JmixEntity
 @Table(name = "CLIENT")
 @Entity
-public class Client {
+public class Client extends StandardEntity {
 
-    @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
-    private UUID id;
-
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
     private Collection<PdvtFile> files;
 
     @Column(name = "CODE")
@@ -36,12 +34,15 @@ public class Client {
     @Column(name = "STORAGE_NAME")
     private String storageName;
 
-    public String getPassword() {
-        return password;
+    @Column(name = "LAST_ACTIVITY")
+    private LocalDateTime lastActivity;
+
+    public LocalDateTime getLastActivity() {
+        return lastActivity;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setLastActivity(LocalDateTime lastActivity) {
+        this.lastActivity = lastActivity;
     }
 
     public FileStorage getStorage(FileStorageLocator locator) {
@@ -50,37 +51,5 @@ public class Client {
         } else {
             return locator.getDefault();
         }
-    }
-
-    public String getStorageName() {
-        return storageName;
-    }
-
-    public void setStorageName(String storageName) {
-        this.storageName = storageName;
-    }
-
-    public Collection<PdvtFile> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Collection<PdvtFile> files) {
-        this.files = files;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 }

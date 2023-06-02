@@ -21,7 +21,7 @@ public class PdvtFileRepositoryImpl implements PdvtFileRepository {
                                                          Client client,
                                                          String name) {
         return dataManager.load(PdvtFile.class)
-                .query("SELECT pf FROM FileDto f " +
+                .query("SELECT pf FROM StoredFile f " +
                         "INNER JOIN PdvtFile pf ON pf.file = f " +
                         "WHERE pf.client = :client AND f.name = :filename")
                 .parameter("client", client)

@@ -2,8 +2,8 @@ package org.izumi.pdvt.backend.controller;
 
 import java.io.InputStream;
 import java.util.Base64;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import io.jmix.core.DataManager;
 import io.jmix.core.FetchPlan;
@@ -16,14 +16,14 @@ import io.jmix.core.security.SystemAuthenticator;
 import lombok.RequiredArgsConstructor;
 import org.izumi.pdvt.backend.Code;
 import org.izumi.pdvt.backend.entity.Client;
-import org.izumi.pdvt.backend.dto.FileDto;
+import org.izumi.pdvt.backend.entity.StoredFile;
 import org.izumi.pdvt.backend.entity.PdvtFile;
 import org.izumi.pdvt.backend.repository.ClientRepository;
 import org.izumi.pdvt.backend.repository.PdvtFileRepository;
+import org.izumi.pdvt.backend.service.ClientService;
 import org.izumi.pdvt.backend.utils.Utils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RestController
 public class PdvtController extends AbstractController {
-    private final PasswordEncoder encoder;
     private final SystemAuthenticator authenticator;
     private final ClientRepository clientRepository;
     private final PdvtFileRepository pdvtFileRepository;
@@ -44,6 +43,7 @@ public class PdvtController extends AbstractController {
     private final Metadata metadata;
     private final DataManager dataManager;
     private final SimpMessagingTemplate template;
+    private final ClientService clientService;
 
     @PostMapping("/client/{code}/create-if-absent")
     public ResponseEntity<Client> createClientIfAbsent(@PathVariable(name = "code") String codeword,
@@ -52,15 +52,11 @@ public class PdvtController extends AbstractController {
             final Code code = new Code(data);
             final Optional<Client> existingOptional = clientRepository.findByCode(codeword);
             if (existingOptional.isEmpty()) {
-                final Client client = metadata.create(Client.class);
-                client.setCode(codeword);
-                client.setPassword(encoder.encode(code.getPassword()));
-                final Client saved = clientRepository.save(client);
-                return ok(saved);
+                return ok(clientService.create(code));
             } else {
                 final Client existing = existingOptional.get();
-                if (!passPasswordsCheck(existing, code)) {
-                    return badRequest();
+                if (!clientService.checkPassword(existing, code)) {
+                    return forbidden();
                 }
 
                 return ok(existing);
@@ -77,8 +73,8 @@ public class PdvtController extends AbstractController {
                 return ok(false);
             } else {
                 final Client client = existingOptional.get();
-                if (!passPasswordsCheck(client, code)) {
-                    return badRequest();
+                if (!clientService.checkPassword(client, code)) {
+                    return forbidden();
                 }
 
                 return ok(true);
@@ -95,7 +91,7 @@ public class PdvtController extends AbstractController {
                 return badRequest();
             } else {
                 final Client client = existingOptional.get();
-                if (!passPasswordsCheck(client, code)) {
+                if (!clientService.checkPassword(client, code)) {
                     return forbidden();
                 }
 
@@ -106,43 +102,29 @@ public class PdvtController extends AbstractController {
     }
 
     @PostMapping("/client/{code}/files/add")
-    public ResponseEntity<PdvtFile> upload(@PathVariable(name = "code") String code,
-                                           @RequestParam("file") MultipartFile file) {
-
-        return authenticator.withSystem(() -> {
-            final Client client = clientRepository.findByCode(code).orElseThrow();
-            final FileStorage storage = client.getStorage(locator);
-
-            final String filename = filename(file);
-            final Optional<PdvtFile> optionalFile = pdvtFileRepository.findByClientAndFileDtoName(
-                    builder -> builder.addFetchPlan(FetchPlan.BASE).add("file", FetchPlan.BASE),
-                    client,
-                    filename
-            );
-            optionalFile.ifPresent(this::delete);
-
-            final FileRef ref = Utils.silently(() -> storage.saveStream(filename, file.getInputStream()));
-            final PdvtFile pdvtFile = metadata.create(PdvtFile.class);
-            pdvtFile.setClient(client);
-            pdvtFile.setFile(fileDtoOf(ref));
-            final PdvtFile saved = dataManager.save(new SaveContext()
-                    .saving(pdvtFile)
-                    .saving(pdvtFile.getFile())
-            ).get(pdvtFile);
-
-            emitPdvt(saved, storage.openStream(ref));
-
-            return ResponseEntity.ok()
-                    .body(saved);
-        });
+    public ResponseEntity<?> upload(@PathVariable(name = "code") String code,
+                                    @RequestParam("code") String data,
+                                    @RequestParam("file") MultipartFile file) {
+        return upload(code, new Code(data), file, this::emitFile);
     }
 
     @PostMapping("/client/{code}/files/add-and-analyze")
-    public ResponseEntity<PdvtFile> uploadAndAnalyze(@PathVariable(name = "code") String code,
-                                                     @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadAndAnalyze(@PathVariable(name = "code") String code,
+                                              @RequestParam("code") String data,
+                                              @RequestParam("file") MultipartFile file) {
+        return upload(code, new Code(data), file, this::emitFileAndAnalyze);
+    }
 
+    private ResponseEntity<?> upload(String code,
+                                     Code c,
+                                     MultipartFile file,
+                                     BiConsumer<PdvtFile, InputStream> emitFunction) {
         return authenticator.withSystem(() -> {
             final Client client = clientRepository.findByCode(code).orElseThrow();
+            if (!clientService.checkPassword(client, c)) {
+                return forbidden();
+            }
+
             final FileStorage storage = client.getStorage(locator);
 
             final String filename = filename(file);
@@ -156,20 +138,20 @@ public class PdvtController extends AbstractController {
             final FileRef ref = Utils.silently(() -> storage.saveStream(filename, file.getInputStream()));
             final PdvtFile pdvtFile = metadata.create(PdvtFile.class);
             pdvtFile.setClient(client);
-            pdvtFile.setFile(fileDtoOf(ref));
+            pdvtFile.setFile(storedFileOf(ref));
             final PdvtFile saved = dataManager.save(new SaveContext()
                     .saving(pdvtFile)
                     .saving(pdvtFile.getFile())
             ).get(pdvtFile);
 
-            emitFileAndAnalyze(saved, storage.openStream(ref));
+            emitFunction.accept(saved, storage.openStream(ref));
+            storage.removeFile(ref);
 
-            return ResponseEntity.ok()
-                    .body(saved);
+            return ok();
         });
     }
 
-    private void emitPdvt(PdvtFile file, InputStream stream) {
+    private void emitFile(PdvtFile file, InputStream stream) {
         final String code = file.getClient().getCode();
         final String filename = file.getFile().getName();
         final String body = Utils.silently(() -> Base64.getEncoder().encodeToString(stream.readAllBytes()));
@@ -194,8 +176,8 @@ public class PdvtController extends AbstractController {
         );
     }
 
-    private FileDto fileDtoOf(FileRef ref) {
-        final FileDto dto = metadata.create(FileDto.class);
+    private StoredFile storedFileOf(FileRef ref) {
+        final StoredFile dto = metadata.create(StoredFile.class);
         dto.setName(ref.getFileName());
         dto.setPath(ref.getPath());
 
@@ -205,14 +187,5 @@ public class PdvtController extends AbstractController {
     private String filename(MultipartFile file) {
         return Optional.ofNullable(file.getOriginalFilename())
                 .orElseGet(file::getName);
-    }
-
-    private boolean passPasswordsCheck(Client client, Code request) {
-        final String password = client.getPassword();
-        if (Objects.isNull(password) || password.isBlank()) {
-            return request.getPassword().isBlank();
-        } else {
-            return encoder.matches(request.getPassword(), password);
-        }
     }
 }

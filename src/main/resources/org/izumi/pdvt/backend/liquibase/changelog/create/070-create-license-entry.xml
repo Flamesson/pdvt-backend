@@ -3,16 +3,28 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.11.xsd"
-        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
-    <changeSet id="1" author="pdvt-backend">
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Aiden Izumi">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="LICENSE_ENTRY"/></not>
+        </preConditions>
+
         <createTable tableName="LICENSE_ENTRY">
             <column name="ID" type="UUID">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="PK_LICENSE_ENTRY"/>
             </column>
+
             <column name="ARTIFACT" type="VARCHAR(255)"/>
             <column name="PROBLEMATIC" type="BOOLEAN"/>
             <column name="LICENSE_NAME" type="VARCHAR(255)"/>
+
+            <column name="VERSION" type="NUMBER"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="DATETIME"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="DATETIME"/>
         </createTable>
     </changeSet>
+
 </databaseChangeLog>

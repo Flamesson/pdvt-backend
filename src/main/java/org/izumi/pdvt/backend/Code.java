@@ -1,6 +1,7 @@
 package org.izumi.pdvt.backend;
 
 import java.util.Base64;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +46,14 @@ public class Code {
         } else {
             return address;
         }
+    }
+
+    public boolean hasPassword() {
+        if (!initialized) {
+            decode();
+        }
+
+        return Objects.nonNull(password) && !password.isBlank();
     }
 
     public String getPassword() {

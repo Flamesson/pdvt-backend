@@ -11,6 +11,7 @@
     <include file="/io/jmix/securitydata/liquibase/changelog.xml"/>
     <include file="/io/jmix/securityoauth2/liquibase/changelog.xml"/>
 
-    <includeAll path="/org/izumi/pdvt/backend/liquibase/changelog"/>
+    <includeAll path="/org/izumi/pdvt/backend/liquibase/changelog/create"/>
+    <includeAll path="/org/izumi/pdvt/backend/liquibase/changelog/init"/>
 
 </databaseChangeLog>

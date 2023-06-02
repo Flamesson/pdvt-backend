@@ -1,4 +1,4 @@
-package org.izumi.pdvt.backend.dto;
+package org.izumi.pdvt.backend.entity;
 
 import java.util.UUID;
 import javax.persistence.Column;
@@ -12,12 +12,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import org.izumi.pdvt.backend.entity.PdvtFile;
 
 @JmixEntity
-@Table(name = "FILE_DTO")
+@Table(name = "STORED_FILE")
 @Entity
-public class FileDto {
+public class StoredFile {
 
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
