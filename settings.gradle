@@ -1,1 +1,14 @@
+pluginManagement {
+    repositories {
+        maven {
+            url System.getenv("GRADLE_PLUGINS")
+            allowInsecureProtocol true
+        }
+
+        gradlePluginPortal()
+
+        mavenLocal()
+    }
+}
+
 rootProject.name = 'pdvt-backend'

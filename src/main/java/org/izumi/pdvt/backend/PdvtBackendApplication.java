@@ -14,13 +14,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import javax.sql.DataSource;
 
 @EnableJmixDataRepositories
-@EnableScheduling
 @SpringBootApplication
 public class PdvtBackendApplication {
     private static final Logger log = LoggerFactory.getLogger(PdvtBackendApplication.class);
